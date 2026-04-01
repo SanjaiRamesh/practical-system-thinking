@@ -1,7 +1,7 @@
 package circuitbreaker;
 
 
-public class CircuitBreaker  {
+public class CircuitBreakerByCount {
 
     enum STATE {
         OPEN,
@@ -22,7 +22,7 @@ public class CircuitBreaker  {
     private int halfOpenRequestCount;
     private STATE  state = STATE.CLOSED;
 
-    public CircuitBreaker(int halfOpenSuccessThreshold, int closeFailureMaxCount, int halfOpenMaxReqCount, int maxOpenWindow) {
+    public CircuitBreakerByCount(int halfOpenSuccessThreshold, int closeFailureMaxCount, int halfOpenMaxReqCount, int maxOpenWindow) {
         this.halfOpenSuccessThreshold = halfOpenSuccessThreshold;
         this.closeFailureMaxCount = closeFailureMaxCount;
         this.halfOpenMaxReqCount = halfOpenMaxReqCount;
@@ -109,7 +109,7 @@ public class CircuitBreaker  {
     public static void main(String[] args) throws InterruptedException{
         System.out.println("Starting CircuitBreaker");
 
-        CircuitBreaker cb = new CircuitBreaker(2, 3,3,2);
+        CircuitBreakerByCount cb = new CircuitBreakerByCount(2, 3,3,2);
         System.out.println("Initial state: " + cb.getState());
 
         simulateFailure(cb);
@@ -132,7 +132,7 @@ public class CircuitBreaker  {
 
     }
 
-    private static void simulateFailure(CircuitBreaker cb) {
+    private static void simulateFailure(CircuitBreakerByCount cb) {
         if (cb.isRequestAllowed()) {
             cb.recordFailure();
         }
