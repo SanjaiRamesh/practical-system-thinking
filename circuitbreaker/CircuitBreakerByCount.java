@@ -21,6 +21,8 @@ public class CircuitBreakerByCount {
     private int closedFailureCount;
     private int halfOpenRequestCount;
     private STATE  state = STATE.CLOSED;
+    private int howManyCallsToRemember =6;
+    private int noOfCalls = 0;
 
     public CircuitBreakerByCount(int halfOpenSuccessThreshold, int closeFailureMaxCount, int halfOpenMaxReqCount, int maxOpenWindow) {
         this.halfOpenSuccessThreshold = halfOpenSuccessThreshold;
@@ -56,6 +58,7 @@ public class CircuitBreakerByCount {
     public void recordSuccess(){
         switch (state){
             case CLOSED-> {
+
                 closedFailureCount=0;
             }
             case HALF_OPEN -> {

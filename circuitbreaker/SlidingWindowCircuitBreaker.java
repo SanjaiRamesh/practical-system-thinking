@@ -3,11 +3,7 @@ package circuitbreaker;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-enum State {
-    OPEN,
-    CLOSE,
-    HALF_OPEN
-}
+
 
 interface CircuitBreaker {
     public boolean allowRequest();
