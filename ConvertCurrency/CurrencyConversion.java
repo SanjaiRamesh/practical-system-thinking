@@ -1,6 +1,7 @@
 package ConvertCurrency;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,32 +14,48 @@ public class CurrencyConversion {
         this.feeService = feeService;
         this.feeService.initialize();
     }
+    private boolean skipCurrencyConversion(BigDecimal amount, SourceCurrency sourceCurrency, DestinationCurrency destinationCurrency) {
+
+        return  BigDecimal.ZERO.compareTo(amount) == 0 || sourceCurrency.name().equals(destinationCurrency.name());
+    }
     public BigDecimal convert(UserType userType, BigDecimal amount, SourceCurrency sourceCurrency, DestinationCurrency destinationCurrency) {
 
         BigDecimal convertedAmount = amount ;
+        if( amount == null || sourceCurrency == null || destinationCurrency == null ) {
+            throw new RuntimeException("Invalid arguments");
+        }
+        if( skipCurrencyConversion(amount, sourceCurrency, destinationCurrency) ) {
+            return amount.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        Optional<BigDecimal> feePercent = feeService.getFee(userType,sourceCurrency, destinationCurrency);
+
+        if( feePercent.isPresent() ) {
+
+            BigDecimal fee = amount.multiply(feePercent.get());
+            convertedAmount = amount.subtract(fee);
+
+        }
+
         Optional<BigDecimal> rate = exchangeRate.exchangeRate(userType,sourceCurrency, destinationCurrency);
 
         if(rate.isEmpty()) {
-            rate = Optional.of(BigDecimal.ONE);
             List<String> path = exchangeRate.getPath(userType, sourceCurrency, destinationCurrency);
+            if(path.isEmpty()) {
+                throw new RuntimeException("exchange rate not found");
+            }
             for(int i=1;i<path.size();i++) {
                 Optional<BigDecimal> mulRate = exchangeRate.exchangeRate(userType, SourceCurrency.valueOf(path.get(i - 1)), DestinationCurrency.valueOf(path.get(i)));
                 if(mulRate.isEmpty()) {
                     throw new RuntimeException("exchange rate not found");
                 }
                 convertedAmount = convertedAmount.multiply(mulRate.get());
-                convertedAmount = convertedAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
             }
         } else {
-            convertedAmount = convertedAmount.multiply(rate.get()).setScale(2, BigDecimal.ROUND_HALF_UP);;
+            convertedAmount = convertedAmount.multiply(rate.get());
         }
-        Optional<BigDecimal> fee = feeService.getFee(userType,sourceCurrency, destinationCurrency);
 
-        if( fee.isPresent() ) {
-
-            return convertedAmount.multiply(fee.get().add(BigDecimal.ONE)).setScale(2, BigDecimal.ROUND_HALF_UP);
-        }
-        return convertedAmount;
+        return convertedAmount.setScale(2, RoundingMode.HALF_UP);
     }
 
     public static void main(String[] args) {

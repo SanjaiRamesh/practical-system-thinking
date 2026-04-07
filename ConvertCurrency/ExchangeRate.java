@@ -10,7 +10,7 @@ public class ExchangeRate {
     Map<UserType,Map<String , BigDecimal>> exchangeRates = new HashMap<>();
 
     public void initialize() {
-        exchangeRates.put(UserType.NORMAL, Map.ofEntries(Map.entry("INR#USD", new BigDecimal("0.012")),Map.entry("INR#EUR", new BigDecimal("0.01")),Map.entry("USD#GBP", new BigDecimal("0.85"))));
+        exchangeRates.put(UserType.NORMAL, Map.ofEntries(Map.entry("INR#USD", new BigDecimal("0.012")),Map.entry("INR#EUR", new BigDecimal("0.01")),Map.entry("USD#GBP", new BigDecimal("0.85")),Map.entry("GBP#INR", new BigDecimal("98"))));
         exchangeRates.put(UserType.GOLD, Map.ofEntries(Map.entry("INR#USD", new BigDecimal("0.01")),Map.entry("INR#EUR", new BigDecimal("0.01")),Map.entry("INR#GBP", new BigDecimal("0.01"))));
     }
     public Optional<BigDecimal> exchangeRate(UserType userType, SourceCurrency sourceCurrency, DestinationCurrency destinationCurrency) {
